@@ -1,0 +1,52 @@
+type: object
+required:
+  - name
+  - type
+  - details
+properties:
+  name:
+    type: string
+    description: Human-readable connection name
+    example: Production DB
+  description:
+    type: string
+    description: Optional description of the connection
+    example: Main production database
+  type:
+    $ref: '../enums/ConnectionType.yaml'
+  details:
+    type: object
+    required:
+      - host
+      - port
+      - database
+      - username
+      - password
+    properties:
+      host:
+        type: string
+        description: Database host
+        example: db.example.com
+      port:
+        type: integer
+        description: Database port
+        example: 5432
+      database:
+        type: string
+        description: Database name
+        example: main_db
+      username:
+        type: string
+        description: Database username
+        example: app_user
+      password:
+        type: string
+        description: Database password
+        format: password
+        example: secret
+  tags:
+    type: array
+    description: Optional tags for grouping/filtering
+    items:
+      type: string
+    example: ["production", "main"]

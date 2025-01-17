@@ -1,0 +1,27 @@
+get:
+  summary: Get connection by ID
+  description: Retrieves a database connection configuration by its ID
+  operationId: getConnectionById
+  tags:
+    - Connections
+  parameters:
+    - name: id
+      in: path
+      required: true
+      description: Connection ID
+      schema:
+        type: integer
+        format: int64
+  responses:
+    '200':
+      description: Connection retrieved successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ConnectionResponse.yaml'
+    '404':
+      description: Connection not found
+    '401':
+      description: Unauthorized
+    '403':
+      description: Forbidden 

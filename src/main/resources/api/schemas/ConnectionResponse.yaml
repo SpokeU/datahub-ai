@@ -1,0 +1,34 @@
+type: object
+allOf:
+  - $ref: 'ConnectionRequest.yaml'
+  - type: object
+    required:
+      - id
+      - createdAt
+      - createdBy
+      - updatedAt
+      - updatedBy
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Unique connection ID
+        example: 1
+      createdAt:
+        type: string
+        format: date-time
+        description: Creation timestamp
+        example: "2024-03-20T10:00:00Z"
+      createdBy:
+        type: string
+        description: ID of the user who created the connection
+        example: "user_01"
+      updatedAt:
+        type: string
+        format: date-time
+        description: Last update timestamp
+        example: "2024-03-20T10:00:00Z"
+      updatedBy:
+        type: string
+        description: ID of the user who last updated the connection
+        example: "user_01"

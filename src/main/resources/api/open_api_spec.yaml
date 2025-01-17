@@ -1,0 +1,16 @@
+openapi: 3.0.1
+info:
+  title: DataHub AI API
+  version: 1.0.0
+  description: DataHub AI API for managing database connections and related operations
+servers:
+  - url: 'http://localhost:8080'
+    description: Local development server
+paths:
+  /api/v1/connections:
+    $ref: './paths/connections.yaml'
+  /api/v1/connections/{id}:
+    $ref: './paths/connection_by_id.yaml'
+tags:
+  - name: Connections
+    description: Database connections management endpoints

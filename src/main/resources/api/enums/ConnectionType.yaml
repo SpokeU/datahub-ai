@@ -1,0 +1,5 @@
+type: string
+description: Type of database connection
+enum:
+  - POSTGRESQL
+example: POSTGRESQL 
