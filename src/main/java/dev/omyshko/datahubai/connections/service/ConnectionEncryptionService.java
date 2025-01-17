@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import dev.omyshko.datahubai.connections.exception.EncryptionException;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -12,6 +13,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ConnectionEncryptionService {
     
@@ -70,7 +72,8 @@ public class ConnectionEncryptionService {
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedValue));
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new EncryptionException("Failed to decrypt value", e);
+            log.error("Failed to decrypt value: {}", encryptedValue, e);
+            throw new EncryptionException("Failed to decrypt value: {}" , e);
         }
     }
 }

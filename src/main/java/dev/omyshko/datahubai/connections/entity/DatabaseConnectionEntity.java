@@ -8,11 +8,12 @@ import org.hibernate.type.SqlTypes;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
 
 @Entity
 @Table(name = "database_connections")
 @Data
-public class DatabaseConnectionEntity {
+public class DatabaseConnectionEntity implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "SERIAL")
@@ -45,4 +46,18 @@ public class DatabaseConnectionEntity {
 
     @Column(name = "updated_by", nullable = false, length = 50)
     private String updatedBy;
+
+    @Override
+    public DatabaseConnectionEntity clone() {
+        try {
+            DatabaseConnectionEntity clone = (DatabaseConnectionEntity) super.clone();
+            // Deep copy the connectionDetails map
+            if (this.connectionDetails != null) {
+                clone.connectionDetails = new HashMap<>(this.connectionDetails);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Failed to clone DatabaseConnectionEntity", e);
+        }
+    }
 } 

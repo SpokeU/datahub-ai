@@ -9,12 +9,14 @@ import dev.omyshko.datahubai.connections.service.DatabaseConnectionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class ConnectionsEndpoint implements ApiApiDelegate {
 
     private final DatabaseConnectionService connectionService;

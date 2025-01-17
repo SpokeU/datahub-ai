@@ -64,3 +64,57 @@ resources
         - **`open_api_spec.yaml`**: OpenAPI/Swagger definition file describing the API endpoints
     - **`db/`**: Database-related resources
         - **`migration/`**: Flyway database migration scripts ([Flyway Usage Conventions](how-to-use-tools/flyway.md#database-migration-naming-conventions))
+
+## Test Structure
+
+```
+test
+├── api
+|  ├── endpoint
+|  └── utils
+├── integration
+|  ├── config
+|  ├── common
+|  └── {feature-name}
+├── core
+|  ├── service
+|  └── utils
+└── {feature-name}
+   ├── repository
+   ├── service
+   └── utils
+```
+
+- **`test/`**: Contains all test-related code organized by layers and features
+    - **`api/`**: Tests for API layer components
+        - **`endpoint/`**: Contains tests for REST controllers and endpoints
+        - **`utils/`**: Test utilities specific to API testing
+    - **`integration/`**: Integration test configurations and implementations
+        - **`config/`**: Test configurations (TestContainers, Security, etc.)
+        - **`common/`**: Shared test utilities and base test classes
+        - **`{feature-name}/`**: Feature-specific integration tests
+    - **`core/`**: Tests for core functionality
+        - **`service/`**: Tests for core services
+        - **`utils/`**: Test utilities for core components
+    - **`{feature-name}/`**: Feature-specific tests
+        - **`repository/`**: Repository layer tests
+        - **`service/`**: Service layer tests
+        - **`utils/`**: Feature-specific test utilities
+
+## Test Resources
+
+```
+test/resources
+├── application-test.yml
+├── data
+│   └── {feature-name}
+└── db
+    └── testdata
+```
+
+- **`src/test/resources/`**:
+    - **`application-test.yml`**: Test-specific application configuration
+    - **`data/`**: Test data files organized by feature
+        - **`{feature-name}/`**: Feature-specific test data (JSON, CSV, etc.)
+    - **`db/`**: Database test data
+        - **`testdata/`**: SQL scripts for test data setup

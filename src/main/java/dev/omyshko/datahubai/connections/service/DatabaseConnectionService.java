@@ -20,28 +20,33 @@ public class DatabaseConnectionService {
 
     @Transactional
     public DatabaseConnectionEntity createConnection(DatabaseConnectionEntity connection, String userId) {
+        // Create a copy for persistence to avoid modifying the original
+        DatabaseConnectionEntity entityToSave = connection.clone();
+        
         // Encrypt sensitive data
         Map<String, String> encryptedDetails = encryptionService.encryptConnectionDetails(
-            connection.getConnectionDetails()
+            entityToSave.getConnectionDetails()
         );
-        connection.setConnectionDetails(encryptedDetails);
+        entityToSave.setConnectionDetails(encryptedDetails);
 
         // Set audit fields
         OffsetDateTime now = OffsetDateTime.now();
-        connection.setCreatedAt(now);
-        connection.setCreatedBy(userId);
-        connection.setUpdatedAt(now);
-        connection.setUpdatedBy(userId);
+        entityToSave.setCreatedAt(now);
+        entityToSave.setCreatedBy(userId);
+        entityToSave.setUpdatedAt(now);
+        entityToSave.setUpdatedBy(userId);
 
-        DatabaseConnectionEntity savedEntity = connectionRepository.save(connection);
+        // Save encrypted entity
+        DatabaseConnectionEntity savedEntity = connectionRepository.save(entityToSave);
         
-        // Decrypt before returning
-        Map<String, String> decryptedDetails = encryptionService.decryptConnectionDetails(
-            savedEntity.getConnectionDetails()
-        );
-        savedEntity.setConnectionDetails(decryptedDetails);
+        // Return original connection with generated ID and audit fields
+        connection.setId(savedEntity.getId());
+        connection.setCreatedAt(savedEntity.getCreatedAt());
+        connection.setCreatedBy(savedEntity.getCreatedBy());
+        connection.setUpdatedAt(savedEntity.getUpdatedAt());
+        connection.setUpdatedBy(savedEntity.getUpdatedBy());
         
-        return savedEntity;
+        return connection;
     }
 
     @Transactional(readOnly = true)

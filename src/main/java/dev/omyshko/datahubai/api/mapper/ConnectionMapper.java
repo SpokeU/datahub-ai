@@ -3,6 +3,7 @@ package dev.omyshko.datahubai.api.mapper;
 import dev.omyshko.datahubai.api.model.ConnectionRequest;
 import dev.omyshko.datahubai.api.model.ConnectionRequestDetails;
 import dev.omyshko.datahubai.api.model.ConnectionResponse;
+import dev.omyshko.datahubai.api.model.ConnectionConstants;
 import dev.omyshko.datahubai.connections.entity.DatabaseConnectionEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -42,7 +43,7 @@ public abstract class ConnectionMapper {
         }
         requestDetails.setDatabase(details.get("database"));
         requestDetails.setUsername(details.get("username"));
-        requestDetails.setPassword("********"); // Mask password in response
+        requestDetails.setPassword(ConnectionConstants.PASSWORD_MASK); // Mask password in response
         
         return requestDetails;
     }

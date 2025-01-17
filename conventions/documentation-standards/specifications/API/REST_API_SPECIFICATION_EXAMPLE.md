@@ -110,8 +110,12 @@ code: 400 or 500
 
 ```json5
 {
-  "code": "{error_code}.{error_type}",
-  "message": "{error_message}"
+  "errors": [
+    {
+      "code": "400.validation_error.name",
+      "message": "must not be null"
+    }
+  ]
 }
 ```
 
