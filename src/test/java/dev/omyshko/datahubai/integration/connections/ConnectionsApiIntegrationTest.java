@@ -8,6 +8,7 @@ import org.springframework.test.context.jdbc.Sql;
 import dev.omyshko.datahubai.integration.config.TestDataFactory;
 import dev.omyshko.datahubai.api.model.ConnectionType;
 import dev.omyshko.datahubai.api.model.ConnectionConstants;
+import dev.omyshko.datahubai.api.model.ConnectionRequestDetails;
 import dev.omyshko.datahubai.integration.config.BaseIntegrationTest;
 import dev.omyshko.datahubai.connections.repository.DatabaseConnectionRepository;
 import dev.omyshko.datahubai.connections.service.ConnectionEncryptionService;
@@ -29,7 +30,7 @@ public class ConnectionsApiIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @Sql({"/sql/cleanup.sql"})
-    void shouldCreateNewConnection() {
+    void shouldCreateConnectionSuccessfully() {
         String connectionName = "test-connection-custom";
         var request = TestDataFactory.createValidConnectionRequest(
             connectionName,
@@ -100,7 +101,7 @@ public class ConnectionsApiIntegrationTest extends BaseIntegrationTest {
 
     @Test
     @Sql({"/sql/cleanup.sql"})
-    void shouldListConnections() {
+    void shouldListAllConnectionsSuccessfully() {
         // Setup: Create test connection through API
         var request = TestDataFactory.createValidConnectionRequest(
             "test-connection-1",
@@ -159,12 +160,15 @@ public class ConnectionsApiIntegrationTest extends BaseIntegrationTest {
             .statusCode(409)
             .body("errors", hasSize(1))
             .body("errors[0].code", equalTo("409.conflict.duplicate_name"))
-            .body("errors[0].message", containsString("already exists"));
+            .body("errors[0].message", equalTo("Connection with name 'test-connection' already exists"));
+
+        // Verify no additional record was created
+        assertEquals(1, connectionRepository.count(), "Only one connection should exist in database");
     }
 
     @Test
     @Sql({"/sql/cleanup.sql"})
-    void shouldRetrieveConnectionById() {
+    void shouldRetrieveConnectionSuccessfully() {
         // Create connection first
         var request = TestDataFactory.createValidConnectionRequest(
             "test-connection",
@@ -200,10 +204,54 @@ public class ConnectionsApiIntegrationTest extends BaseIntegrationTest {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get("/connections/{id}", "non-existent-id")
+            .get("/connections/{id}", 999999L)
         .then()
             .statusCode(404)
-            .body("message", containsString("not found"));
+            .body("errors[0].code", equalTo("404.not_found.connection"))
+            .body("errors[0].message", containsString("not found"));
+    }
+
+    @Test
+    @Sql({"/sql/cleanup.sql"})
+    void shouldTestExistingConnectionSuccessfully() {
+        // Create test connection first
+        var request = TestDataFactory.createValidConnectionRequest(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test")
+        );
+
+        Integer connectionId = given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post("/connections")
+        .then()
+            .statusCode(201)
+            .extract()
+            .path("id");
+
+        // Test the connection
+        given()
+            .contentType(ContentType.JSON)
+        .when()
+            .post("/connections/{id}/test", connectionId)
+        .then()
+            .statusCode(200)
+            .body("status", equalTo("SUCCESS"))
+            .body("message", equalTo("Connection successful"));
+    }
+
+    @Test
+    void shouldFailToTestNonExistentConnection() {
+        given()
+            .contentType(ContentType.JSON)
+        .when()
+            .post("/connections/{id}/test", 999999L)
+        .then()
+            .statusCode(404)
+            .body("errors[0].code", equalTo("404.not_found.connection"))
+            .body("errors[0].message", containsString("not found"));
     }
 
     @Test
@@ -235,5 +283,140 @@ public class ConnectionsApiIntegrationTest extends BaseIntegrationTest {
             .body("errors", hasSize(1))
             .body("errors[0].code", equalTo("400.validation_error.type"))
             .body("errors[0].message", equalTo("Invalid connection type provided"));
+    }
+
+    @Test
+    @Sql({"/sql/cleanup.sql"})
+    void shouldFailWithInvalidPortNumber() {
+        // Test negative port
+        var requestWithNegativePort = TestDataFactory.createValidConnectionRequest(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test")
+        );
+        requestWithNegativePort.getDetails().setPort(-1);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(requestWithNegativePort)
+        .when()
+            .post("/connections")
+        .then()
+            .statusCode(400)
+            .body("errors", hasSize(1))
+            .body("errors[0].code", equalTo("400.validation_error.details.port"))
+            .body("errors[0].message", equalTo("must be greater than or equal to 1"));
+
+        // Verify no database record was created
+        assertTrue(connectionRepository.findAll().isEmpty(), "Database should be empty after failed creation with negative port");
+
+        // Test out of range port
+        var requestWithOutOfRangePort = TestDataFactory.createValidConnectionRequest(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test")
+        );
+        requestWithOutOfRangePort.getDetails().setPort(65536);
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(requestWithOutOfRangePort)
+        .when()
+            .post("/connections")
+        .then()
+            .statusCode(400)
+            .body("errors", hasSize(1))
+            .body("errors[0].code", equalTo("400.validation_error.details.port"))
+            .body("errors[0].message", equalTo("must be less than or equal to 65535"));
+
+        // Verify no database record was created
+        assertTrue(connectionRepository.findAll().isEmpty(), "Database should be empty after failed creation with out of range port");
+    }
+
+    @Test
+    @Sql({"/sql/cleanup.sql"})
+    void shouldTestValidConnection() {
+        // Create request with TestContainers PostgreSQL connection details
+        ConnectionRequestDetails details = new ConnectionRequestDetails()
+            .host("localhost")
+            .port(postgres.getMappedPort(5432))
+            .database(postgres.getDatabaseName())
+            .username(postgres.getUsername())
+            .password(postgres.getPassword());
+
+        var request = TestDataFactory.createValidConnectionRequestWithDetails(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test"),
+            details
+        );
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post("/connections/test")
+        .then()
+            .statusCode(200)
+            .body("status", equalTo("SUCCESS"))
+            .body("message", equalTo("Connection successful"));
+    }
+
+    @Test
+    @Sql({"/sql/cleanup.sql"})
+    void shouldFailTestWithInvalidCredentials() {
+        // Create request with invalid credentials but valid host/port from TestContainers
+        ConnectionRequestDetails invalidDetails = new ConnectionRequestDetails()
+            .host("localhost")
+            .port(postgres.getMappedPort(5432))
+            .database(postgres.getDatabaseName())
+            .username("invalid-user")
+            .password("invalid-password");
+
+        var request = TestDataFactory.createValidConnectionRequestWithDetails(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test"),
+            invalidDetails
+        );
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post("/connections/test")
+        .then()
+            .statusCode(200)
+            .body("status", equalTo("FAILED"))
+            .body("message", containsString("Connection failed"));
+    }
+
+    @Test
+    @Sql({"/sql/cleanup.sql"})
+    void shouldFailTestWithUnreachableHost() {
+        // Create request with unreachable host
+        ConnectionRequestDetails unreachableDetails = new ConnectionRequestDetails()
+            .host("unreachable-host")
+            .port(5432)
+            .database("test-db")
+            .username("test-user")
+            .password("test-password");
+
+        var request = TestDataFactory.createValidConnectionRequestWithDetails(
+            "test-connection",
+            ConnectionType.POSTGRESQL,
+            Arrays.asList("test"),
+            unreachableDetails
+        );
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(request)
+        .when()
+            .post("/connections/test")
+        .then()
+            .statusCode(200)
+            .body("status", equalTo("FAILED"))
+            .body("message", containsString("Connection failed"));
     }
 } 

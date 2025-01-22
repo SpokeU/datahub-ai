@@ -11,6 +11,10 @@ paths:
     $ref: './paths/connections.yaml'
   /api/v1/connections/{id}:
     $ref: './paths/connection_by_id.yaml'
+  /api/v1/connections/test:
+    $ref: './paths/connection_test.yaml'
+  /api/v1/connections/{id}/test:
+    $ref: './paths/connection_test_by_id.yaml'
 tags:
   - name: Connections
     description: Database connections management endpoints

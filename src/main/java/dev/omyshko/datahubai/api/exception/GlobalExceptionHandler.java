@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * Global exception handler for the application.
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * Handles specific exceptions like:
  * - {@link ConnectionNotFoundException} - When requested connection is not found (404)
  * - {@link EncryptionException} - When encryption/decryption operations fail (500)
+ * - {@link DataIntegrityViolationException} - When database constraints are violated (409 for unique constraints)
  * 
  * Also provides a fallback handler for any unhandled exceptions.
  * 
@@ -24,6 +26,33 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation: {}", ex.getMessage());
+        
+        // Check if it's a unique constraint violation
+        if (ex.getMessage() != null) {
+            // Extract connection name from the error message
+            String connectionName = extractConnectionName(ex.getMessage());
+            ValidationErrorResponse response = new ValidationErrorResponse();
+            response.addErrorWithCode("409.conflict.duplicate_name", 
+                String.format("Connection with name '%s' already exists", connectionName));
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+        
+        // Handle other data integrity violations
+        ValidationErrorResponse response = new ValidationErrorResponse();
+        response.addError("data_integrity", "Data integrity violation occurred");
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    private String extractConnectionName(String errorMessage) {
+        // Example error message: "... Key (name)=(test-connection) already exists..."
+        int startIndex = errorMessage.indexOf("=(") + 2;
+        int endIndex = errorMessage.indexOf(")", startIndex);
+        return errorMessage.substring(startIndex, endIndex);
+    }
 
     @ExceptionHandler(ConnectionNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleConnectionNotFoundException(ConnectionNotFoundException ex) {

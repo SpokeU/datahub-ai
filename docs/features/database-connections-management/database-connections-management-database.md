@@ -21,22 +21,12 @@ CREATE TABLE database_connections (
 ```
 
 **Example data:**
-```json
-{
-    "id": 1,
-    "name": "Production DB",
-    "description": "Main production database",
-    "type": "POSTGRESQL",
-    "connection_details": {
-        "encrypted": "base64_encrypted_connection_details..."
-    },
-    "tags": ["production", "main"],
-    "created_at": "2024-03-20T10:00:00Z",
-    "created_by": "user_01",
-    "updated_at": "2024-03-20T10:00:00Z",
-    "updated_by": "user_01"
-}
-```
+
+| id | name           | description                | type       | connection_details                                   | tags                     | created_at          | created_by | updated_at          | updated_by |
+|----|----------------|----------------------------|------------|-----------------------------------------------------|--------------------------|----------------------|------------|----------------------|------------|
+| 1  | Production DB  | Main production database    | POSTGRESQL | {"host": "db.example.com", "port": 5432, "database": "main_db", "username": "app_user", "password": "base64_encrypted_password"} | ["production", "main"]   | 2024-03-20T10:00:00Z | user_01    | 2024-03-20T10:00:00Z | user_01    |
+
+**Note:** The `connection_details` will be stored in an encrypted format.
 
 ### Indexes and Performance Considerations
 ```sql

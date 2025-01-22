@@ -25,7 +25,7 @@ public abstract class BaseIntegrationTest {
     private Integer port;
 
     @Container
-    private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
+    protected static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
             .withDatabaseName("integration-tests-db")
             .withUsername("test")
             .withPassword("test")

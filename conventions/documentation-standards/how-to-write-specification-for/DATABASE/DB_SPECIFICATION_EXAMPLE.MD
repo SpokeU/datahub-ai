@@ -15,14 +15,10 @@ CREATE TABLE products (
 ```
 
 **Example data:**
-```json
-{
-    "id": 1,
-    "name": "Basic Widget",
-    "price": 19.99,
-    "created_at": "2024-03-15T10:00:00Z"
-}
-```
+
+| id | name           | price | created_at          |
+|----|----------------|-------|----------------------|
+| 1  | Basic Widget   | 19.99 | 2024-03-15T10:00:00Z |
 
 ### Modified Tables
 **Products (Add inventory tracking)**
@@ -33,25 +29,16 @@ ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 ```
 
 **Before/After example:**
-```json
-// Before
-{
-    "id": 1,
-    "name": "Basic Widget",
-    "price": 19.99,
-    "created_at": "2024-03-15T10:00:00Z"
-}
 
-// After
-{
-    "id": 1,
-    "name": "Basic Widget",
-    "price": 19.99,
-    "created_at": "2024-03-15T10:00:00Z",
-    "stock_count": 100,
-    "status": "active"
-}
-```
+*Before*
+| id | name           | price | created_at          |
+|----|----------------|-------|----------------------|
+| 1  | Basic Widget   | 19.99 | 2024-03-15T10:00:00Z |
+
+*After*
+| id | name           | price | created_at          | stock_count | status  |
+|----|----------------|-------|----------------------|-------------|---------|
+| 1  | Basic Widget   | 19.99 | 2024-03-15T10:00:00Z | 100         | active  |
 
 ### Indexes and Performance Considerations
 - Add index for product search

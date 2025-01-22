@@ -4,8 +4,11 @@ import dev.omyshko.datahubai.api.ApiApiDelegate;
 import dev.omyshko.datahubai.api.mapper.ConnectionMapper;
 import dev.omyshko.datahubai.api.model.ConnectionRequest;
 import dev.omyshko.datahubai.api.model.ConnectionResponse;
+import dev.omyshko.datahubai.api.model.ConnectionTestResponse;
 import dev.omyshko.datahubai.connections.entity.DatabaseConnectionEntity;
 import dev.omyshko.datahubai.connections.service.DatabaseConnectionService;
+import dev.omyshko.datahubai.connections.service.ConnectionTestService;
+import dev.omyshko.datahubai.connections.service.ConnectionTestService.TestResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class ConnectionsEndpoint implements ApiApiDelegate {
 
     private final DatabaseConnectionService connectionService;
+    private final ConnectionTestService connectionTestService;
     private final ConnectionMapper connectionMapper;
     
     // TODO: Inject proper user context service
@@ -50,5 +54,29 @@ public class ConnectionsEndpoint implements ApiApiDelegate {
             .collect(Collectors.toList());
             
         return ResponseEntity.ok(connections);
+    }
+    
+    @Override
+    public ResponseEntity<ConnectionTestResponse> testConnection(ConnectionRequest connectionRequest) {
+        DatabaseConnectionEntity entity = connectionMapper.toEntity(connectionRequest);
+        TestResult result = connectionTestService.testConnection(entity);
+        
+        ConnectionTestResponse response = new ConnectionTestResponse()
+            .status(ConnectionTestResponse.StatusEnum.valueOf(result.status().name()))
+            .message(result.message());
+            
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<ConnectionTestResponse> testExistingConnection(Long id) {
+        DatabaseConnectionEntity connection = connectionService.getConnection(id);
+        TestResult testResult = connectionTestService.testConnection(connection);
+        
+        ConnectionTestResponse response = new ConnectionTestResponse()
+            .status(ConnectionTestResponse.StatusEnum.valueOf(testResult.status().name()))
+            .message(testResult.message());
+        
+        return ResponseEntity.ok(response);
     }
 } 

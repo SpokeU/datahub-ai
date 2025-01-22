@@ -1,0 +1,25 @@
+post:
+  summary: Test database connection configuration
+  description: Tests a database connection configuration before saving
+  operationId: testConnection
+  tags:
+    - Connections
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: '../schemas/ConnectionRequest.yaml'
+  responses:
+    '200':
+      description: Connection test completed
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/ConnectionTestResponse.yaml'
+    '400':
+      description: Invalid request
+    '401':
+      description: Unauthorized
+    '403':
+      description: Forbidden 

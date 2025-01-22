@@ -12,8 +12,8 @@ DataHub is a centralized web platform for database query management and collabor
 
 ## Key Features
 
-### Database Connections Management
-Secure storage and management of database connection details, supporting PostgreSQL for the MVP phase. Users can add, edit, and test database connections through a simple interface. [Read more](features/database-connections-management.md)
+### [Database Connections Management](features/database-connections-management/database-connections-management.md)
+Secure storage and management of database connection details, supporting PostgreSQL for the MVP phase. Users can add, edit, and test database connections through a simple interface.
 
 ### Query Editor & Execution
 Interactive SQL editor with syntax highlighting where users can write, execute, and view results of database queries. Includes basic error handling and result set display in a tabular format.
@@ -29,7 +29,7 @@ Basic role-based access control to manage who can:
 - Administer user permissions
 
 ## Roadmap
-{Project roadmap information}
+[Project roadmap information]
 
 ## Technical Solution Overview
 {A short summary of technologies used in implementation}

@@ -47,6 +47,16 @@ Creates a new database connection configuration.
 }
 ```
 
+#### **Possible Errors**
+- **409 Conflict**: Duplicate connection name.
+    ```json5
+    ..
+    {
+      "code": "409.conflict.duplicate_name",
+      "message": "Connection with name 'Production DB' already exists"
+    }
+    ```
+
 ## Get Connection
 
 Retrieves a database connection configuration by its ID.
@@ -82,6 +92,19 @@ Retrieves all database connections accessible to the user.
 }
 ```
 
+#### **Possible Errors**
+- **401 Unauthorized**: Authentication failed. Ensure you are logged in and have the necessary permissions.
+    ```json5
+    {
+      "errors": [
+        {
+          "code": "401.unauthorized",
+          "message": "Authentication token is missing or invalid"
+        }
+      ]
+    }
+    ```
+
 ## Update Connection
 
 Updates an existing database connection configuration.
@@ -95,6 +118,19 @@ Updates an existing database connection configuration.
 
 #### **Update connection response**
 *Matches the structure of [Database connection creation response](#database-connection-creation-response)*
+
+#### **Possible Errors**
+- **400 Bad Request**: Invalid input data. Ensure all required fields are provided and correctly formatted.
+    ```json5
+    {
+      "errors": [
+        {
+          "code": "400.validation_error.name",
+          "message": "must not be null"
+        }
+      ]
+    }
+    ```
 
 ## Delete Connection
 
@@ -178,15 +214,51 @@ Example of error returned by any API endpoint
 
 #### **Generic Error Response**
 
-code: 400 or 500
+**HTTP Status Codes:** 400 or 500
 
+**Response Structure:**
 ```json5
 {
-  "code": "{error_code}.{error_type}",
-  "message": "{error_message}"
+    "errors": [
+        {
+            "code": "{error_code}.{error_type}",
+            "message": "{error_message}"
+        },
+        //...
+    ]
 }
 ```
 
-error_code - *Error code*
-error_type - *Error type*
-error_message - *Error message* 
+#### **Generic Validation Errors**
+
+- **Null Values for Required Fields** - **400 Bad Request**
+    ```json5
+    {
+      "code": "400.validation_error.{field_name}",
+      "message": "{field_name} must not be null"
+    }
+    ```
+
+- **Invalid Enum Value** - **400 Bad Request**
+    ```json5
+    {
+      "code": "400.validation_error.{field_name}",
+      "message": "Invalid connection type provided"
+    }
+    ```
+
+- **Field Less Than Minimum Value** - **400 Bad Request**
+    ```json5
+    {
+      "code": "400.validation_error.{field_name}",
+      "message": "must be greater than or equal to {N}"
+    }
+    ```
+
+- **Field Greater Than Maximum Value** - **400 Bad Request**
+    ```json5
+    {
+      "code": "400.validation_error.{field_name}",
+      "message": "must be less than or equal to {N}"
+    }
+    ```

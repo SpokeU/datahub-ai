@@ -1,0 +1,15 @@
+type: object
+required:
+  - status
+properties:
+  status:
+    type: string
+    description: Status of the connection test
+    enum:
+      - SUCCESS
+      - FAILED
+    example: SUCCESS
+  message:
+    type: string
+    description: Optional message providing more details about the test result
+    example: Connection successful 

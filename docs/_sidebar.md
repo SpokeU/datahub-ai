@@ -1,0 +1,8 @@
+- [DataHub](README.md)
+- [Project Info](project-info.md)
+- [Features](#)
+    - [Database connection management](features/database-connections-management/database-connections-management.md)
+      - [API Specification](features/database-connections-management/DataHubAPI.md)
+      - [Database Specification](features/database-connections-management/DataHubDB.md)
+      - [Technical Specification](features/database-connections-management/DataHubApi-Technical-spec.md)
+      - [Test Plan](features/database-connections-management/database-connections-management-test-plan.md)

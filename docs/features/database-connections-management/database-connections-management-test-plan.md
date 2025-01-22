@@ -1,26 +1,26 @@
 # Overview
 This test plan outlines the integration test scenarios for the Database Connections Management feature, focusing on testing the REST API endpoints and their interaction with the database layer.
 
-# Implementation plan
-    - Connection Creation (POST /api/v1/connections) ✔️
-      - Success Creation ✔️
-      - Missing Required Fields Validation ✔️
-      - Invalid Connection Type ✔️
-      - Invalid Port Number
-      - Duplicate Connection Name
-      - Field Size Validation
-    - Connection Retrieval (GET /api/v1/connections/{id}) 
-      - Successful Retrieval ✔️
-      - Non-existent Connection
-    - Connections Listing (GET /api/v1/connections) 
-      - List All Connections ✔️
-      - Empty Database List
-    - Connection Testing (POST /api/v1/connections/test)
-      - Valid Connection Test
-      - Invalid Connection Test
-    - Edge Cases and Special Scenarios
-      - Special Characters Handling
-      - Concurrent Operations
+# Test plan
+- [Connection Creation (POST /api/v1/connections)](#connection-creation-post-apiv1connections) ✔️
+    - Success Creation ✔️
+    - Missing Required Fields Validation ✔️
+    - Invalid Connection Type ✔️
+    - Invalid Port Number ✔️
+    - Duplicate Connection Name ✔️
+    - Field Size Validation
+- [Connection Retrieval (GET /api/v1/connections/{id})](#connection-retrieval-get-apiv1connectionsid) ✔️
+    - Successful Retrieval ✔️
+    - Non-existent Connection ✔️
+- [Connections Listing (GET /api/v1/connections)](#connections-listing-get-apiv1connections) ✔️
+    - List All Connections ✔️
+    - Empty Database List
+- [Connection Testing (POST /api/v1/connections/test)](#connection-testing-post-apiv1connections-test)
+    - Valid Connection Test
+    - Invalid Connection Test
+- Edge Cases and Special Scenarios
+    - Special Characters Handling
+    - Concurrent Operations
 
 # Test Environment Requirements
 - TestContainers PostgreSQL container configured for integration tests
@@ -86,7 +86,7 @@ Database checks:
 ---
 ### Invalid Port Number
 
-**Implemented by**: -
+**Implemented by**: `ConnectionsApiIntegrationTest.shouldFailWithInvalidPortNumber`
 
 **Preconditions**: -
 
@@ -105,14 +105,14 @@ Database checks:
 **Implemented by**: `ConnectionsApiIntegrationTest.shouldFailWithDuplicateConnectionName`
 
 **Preconditions**: 
-- Existing connection with name "test-connection"
+- Existing connection with name "Production DB"
 
 **Test steps**:
 - Create connection with duplicate name
 
 **Expected Result**:
 - Response status 409
-- Error message indicates duplicate name
+- Error message "Connection with name 'Production DB' already exists"
 - No new database record created
 
 ---
